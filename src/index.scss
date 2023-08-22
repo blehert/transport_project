@@ -1,0 +1,9 @@
+body {
+  background: rgb(0, 131, 255);
+  background: linear-gradient(90deg,
+      rgba(0, 131, 255, 1) 0%,
+      rgba(0, 209, 255, 1) 50%,
+      rgba(0, 131, 255, 1) 100%);
+  min-height: 100%;
+  max-width: 100%;
+}

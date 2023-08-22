@@ -1,0 +1,14 @@
+.route_selects {
+    display: flex;
+    height: 350px;
+    margin-left: 100px;
+    align-items: center;
+
+    &__title {
+        padding: 10px;
+    }
+
+    &__select {
+        width: 170px;
+    }
+}

@@ -1,0 +1,41 @@
+.sidebar {
+    grid-area: menu;
+    min-height: 850px;
+    padding: 15px;
+    width: 200px;
+    border-radius: 20px;
+
+    &__logo {
+        font-size: 20px;
+        font-weight: 700;
+        margin-top: 100px;
+        margin-bottom: 40px;
+        padding: 8px;
+    }
+
+    &__item {
+        display: flex;
+        align-items: center;
+        height: 50px;
+        max-width: 200px;
+        padding: 8px;
+        margin-bottom: 20px;
+
+        &.active {
+            background-color: rgba(0, 131, 255, 1);
+            border-radius: 20px;
+            color: #fff;
+        }
+
+    }
+
+    &__icon {
+        margin-right: 15px;
+        color: #fff;
+    }
+
+    &__text {
+        font-size: 16px;
+        font-weight: 500;
+    }
+}
