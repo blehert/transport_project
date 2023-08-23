@@ -27,29 +27,30 @@ const TsTablePage = () => {
   //   }
   // }, [])
 
-  const fetchRouteData = useCallback(async () => {
-  try {
-    const res = await axios.get(BASE_TS_URL);
-    const responseData = res.data;
-    
-    // Проверяем, что responseData является массивом, прежде чем использовать map()
-    if (Array.isArray(responseData)) {
-      const newData = responseData.map((item) => ({
-        ...item,
-        park: item['garage_number'][0]
-      }));
-      setData(newData);
-    } else {
-      console.error('Response data is not an array:', responseData);
-    }
-  } catch (error) {
-    console.error(error);
-  }
-}, []);
+const fetchRouteData = useCallback(async () => {
+    try {
+      const res = await axios.get(BASE_TS_URL);
+      const responseData = res.data;
 
-  useEffect(() => {
-    fetchRouteData();
-  }, [fetchRouteData]);
+      // Проверяем, что responseData является массивом, прежде чем использовать map()
+      if (Array.isArray(responseData)) {
+        const newData = responseData.map((item) => ({
+          ...item,
+          park: item['garage_number'][0]
+        }));
+        setData(newData);
+      } else {
+        const arrayData = Array.from(responseData); // Преобразование в массив
+        newData = arrayData.map((item) => ({
+          ...item,
+          park: item['garage_number'][0],
+        }));
+        console.error('Response data is not an array:', responseData);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }, []);
 
 
   const columns = useMemo(
