@@ -1,7 +1,7 @@
 # импорты библиотек
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, Request
-import uvicorn
+from uvicorn import run
 
 
 # импорты своих функций и файлов
@@ -66,4 +66,4 @@ async def get_ts_data():
 
 
 if __name__ == "__main__":
-    uvicorn.run("api:app", host="127.0.0.1", port=5000, log_level="info")
+    run("api:app", host="192.168.45.76", port=5000, log_level="info", ssl_keyfile="key.pem", ssl_certfile="cert.pem")
