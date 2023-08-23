@@ -17,6 +17,7 @@ const TsTablePage = () => {
     try {
       const res = await axios.get(BASE_TS_URL);
       const responseData = res.data
+      console.log(responseData)
       // создаю новый объект дата, и добавляю в него поле park
       const newData = responseData.map((item) => {
         return { ...item, park: item['garage_number'][0] }
