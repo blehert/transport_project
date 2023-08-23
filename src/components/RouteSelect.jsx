@@ -7,9 +7,9 @@ import axios from 'axios';
 import { saveToLocalStorage, restoreFromLocalStorage } from '../utils/get_set_data_from_ls'
 
 // константы
-const ROUTE_DATA_URL = 'https://192.168.45.76:5000/route_data';
-const TRIP_DATA_URL = 'https://192.168.45.76:5000/trip_data';
-const ROUTE_URL = 'https://192.168.45.76:5000/route';
+const ROUTE_DATA_URL = '/route_data';
+const TRIP_DATA_URL = '/trip_data';
+const ROUTE_URL = '/route';
 
 
 
