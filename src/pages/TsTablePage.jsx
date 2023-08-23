@@ -7,7 +7,7 @@ import { Box, Button } from '@mui/material';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 
 
-const BASE_TS_URL = 'http://192.168.45.76:5000/base_ts_data'
+const BASE_TS_URL = 'https://192.168.45.76:5000/base_ts_data'
 
 const TsTablePage = () => {
 
