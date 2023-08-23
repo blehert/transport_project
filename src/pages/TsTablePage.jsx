@@ -16,6 +16,7 @@ const TsTablePage = () => {
   const fetchRouteData = useCallback(async () => {
     try {
       const res = await axios.get(BASE_TS_URL);
+      console.log(res)
       const responseData = res.data
       console.log(responseData)
       // создаю новый объект дата, и добавляю в него поле park
