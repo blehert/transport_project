@@ -7,41 +7,25 @@ import { Box, Button } from '@mui/material';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 
 
-const BASE_TS_URL = '/base_ts_data'
+const BASE_TS_URL = 'https://192.168.45.76:5000/base_ts_data'
 
 const TsTablePage = () => {
 
   const [data, setData] = useState([]);
 
-  // const fetchRouteData = useCallback(async () => {
-  //   try {
-  //     const res = await axios.get(BASE_TS_URL);
-  //     const responseData = res.data
-  //     // создаю новый объект дата, и добавляю в него поле park
-  //     const newData = responseData.map((item) => {
-  //       return { ...item, park: item['garage_number'][0] }
-  //     })
-  //     setData(newData);
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
-  // }, [])
-
-const fetchRouteData = useCallback(async () => {
+  const fetchRouteData = useCallback(async () => {
     try {
       const res = await axios.get(BASE_TS_URL);
-      const responseData = res.data;
-      const arrayData = Array.from(responseData); // Преобразование в массив
-      const newData = arrayData.map((item) => ({
-          ...item,
-          park: item['garage_number'][0],
-        }));
-        setData(newData);   
+      const responseData = res.data
+      // создаю новый объект дата, и добавляю в него поле park
+      const newData = responseData.map((item) => {
+        return { ...item, park: item['garage_number'][0] }
+      })
+      setData(newData);
     } catch (error) {
       console.error(error);
     }
-  }, []);
-
+  }, [])
 
   const columns = useMemo(
     () => [
