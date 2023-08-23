@@ -13,19 +13,39 @@ const TsTablePage = () => {
 
   const [data, setData] = useState([]);
 
+  // const fetchRouteData = useCallback(async () => {
+  //   try {
+  //     const res = await axios.get(BASE_TS_URL);
+  //     const responseData = res.data
+  //     // создаю новый объект дата, и добавляю в него поле park
+  //     const newData = responseData.map((item) => {
+  //       return { ...item, park: item['garage_number'][0] }
+  //     })
+  //     setData(newData);
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // }, [])
+
   const fetchRouteData = useCallback(async () => {
-    try {
-      const res = await axios.get(BASE_TS_URL);
-      const responseData = res.data
-      // создаю новый объект дата, и добавляю в него поле park
-      const newData = responseData.map((item) => {
-        return { ...item, park: item['garage_number'][0] }
-      })
+  try {
+    const res = await axios.get(BASE_TS_URL);
+    const responseData = res.data;
+    
+    // Проверяем, что responseData является массивом, прежде чем использовать map()
+    if (Array.isArray(responseData)) {
+      const newData = responseData.map((item) => ({
+        ...item,
+        park: item['garage_number'][0]
+      }));
       setData(newData);
-    } catch (error) {
-      console.error(error);
+    } else {
+      console.error('Response data is not an array:', responseData);
     }
-  }, [])
+  } catch (error) {
+    console.error(error);
+  }
+}, []);
 
   useEffect(() => {
     fetchRouteData();
