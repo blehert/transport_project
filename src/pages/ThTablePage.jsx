@@ -13,36 +13,21 @@ const ThTablePage = () => {
 
     const [data, setData] = useState([]);
 
-    // const fetchRouteData = useCallback(async () => {
-    //     try {
-    //         const res = await axios.get(BASE_TH_URL);
-    //         console.log(res)
-    //         const responseData = res.data
-    //         // создаю новый объект дата, и добавляю в него поле park
-    //         const newData = responseData.map((item) => {
-    //             return { ...item, park: item['garage_number'][0] }
-    //         })
-    //         setData(newData);
-    //     } catch (error) {
-    //         console.error(error);
-    //     }
-    // }, [])
     const fetchRouteData = useCallback(async () => {
-    try {
-      const res = await axios.get(BASE_TS_URL);
+        try {
+            const res = await axios.get(BASE_TH_URL);
+            console.log(res)
+            const responseData = res.data
+            // создаю новый объект дата, и добавляю в него поле park
+            const newData = responseData.map((item) => {
+                return { ...item, park: item['garage_number'][0] }
+            })
+            setData(newData);
+        } catch (error) {
+            console.error(error);
+        }
+    }, [])
 
-      const responseData = res.data
-      console.log(responseData)
-
-      // создаю новый объект дата, и добавляю в него поле park
-      const newData = responseData.map((item) => {
-        return { ...item, park: item['garage_number'][0] }
-      })
-      setData(newData);
-    } catch (error) {
-      console.error(error);
-    }
-  }, [])
 
     useEffect(() => {
         fetchRouteData();
