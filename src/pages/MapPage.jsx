@@ -175,7 +175,7 @@ const MapPage = () => {
     let index, stopId;
 
 
-    const str = `<!DOCTYPE html>
+        const str = `<!DOCTYPE html>
   <html lang="en">
   <head>
     <meta charset="UTF-8">
