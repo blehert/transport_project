@@ -108,6 +108,8 @@ const MapPage = () => {
                 delete obj.lon;
             });
             setBackCoordinates(backDots);
+
+
             // const newHtml = res.data
             // setIframeHtml(newHtml);
             // console.log(newHtml)
@@ -194,26 +196,92 @@ const MapPage = () => {
 
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script>
-      const map = L.map('map').setView([59.986764999999984, 30.304062], 13);
-      const coordinates = ${JSON.stringify(coordinates)}; 
-      L.polyline(coordinates, { color: 'blue' }).addTo(map);
-      const backCoordinates = ${JSON.stringify(backCoordinates)}; 
+    // создание карты
+    const map = L.map('map')
+    //   прямые координаты
+      const coordinates = ${JSON.stringify(coordinates)};
+       L.polyline(coordinates, { color: 'blue' }).addTo(map);
+    //   обратные координаты
+      const backCoordinates = ${JSON.stringify(backCoordinates)};
       L.polyline(backCoordinates, { color: 'green' }).addTo(map);
+    // создание карты
+     map.setView(coordinates[0], 13);
 
-    const stopIds = [27589,31671,2932,4212,3671,2956,3330,3127,3652,3128,3535,3129,22956,28866,4161,1522,2967,1373,1375,4165,3058,4375,2976,22962,35835,2842,22314,31004,3910,2077,1655,4168,4169,1334,23716,24311,35082]
+// Создаем слои для маршрута, остановок и начала/конца маршрута
+var busRouteLayer = L.layerGroup().addTo(map);
+var backBusRouteLayer = L.layerGroup().addTo(map);
+var busStopLayer = L.layerGroup().addTo(map);
+var backBusStopLayer = L.layerGroup().addTo(map);
+var startEndRouteLayer = L.layerGroup().addTo(map);
 
-    stopIds.forEach((stopId, index) => {
-      const stopCoord = coordinates[index];
-      if (stopCoord) {
-        L.circleMarker([stopCoord.lat, stopCoord.lng], { radius: 8, color: 'red' })
-          .addTo(map)
-          .bindPopup('Остановка ${stopId}');
-      }
-    });
+// Добавляем полилинию маршрута
+var polyline = L.polyline(coordinates, { color: 'green' }).addTo(busRouteLayer);
+// центрируем карту относительно polyline
+map.fitBounds(polyline.getBounds());
+
+// Если есть обратный маршрут и остановки, то добавляем их
+if (${JSON.stringify(backCoordinates)}) {
+    var busBackRouteLayer = L.layerGroup().addTo(map);
+    var busBackStopLayer = L.layerGroup().addTo(map);
+
+    L.polyline(${JSON.stringify(backCoordinates)}, { color: 'blue' }).addTo(busBackRouteLayer);
+
+}
+
+// Создаем маркеры для начала и конца маршрута
+var startCoordination = coordinates[0];
+var endCoordination = coordinates[coordinates.length - 1];
+
+// Создаем иконку маркера (здесь вы можете заменить "icon-url" на URL вашей иконки)
+var customIcon = L.icon({
+    iconUrl: 'marker.png', // Путь к изображению вашей иконки
+    iconSize: [32, 32],     // Размер иконки (ширина, высота)
+    iconAnchor: [15, 30],   // Точка привязки иконки (центр нижней части)
+    popupAnchor: [0, -30]   // Позиция всплывающей подсказки (над иконкой)
+});
+
+// Создаем маркер с иконкой
+var startMarker = L.marker(startCoordination, {
+    icon: customIcon,
+    title: '№ маршрута',
+    // Дополнительные параметры тултипа (если нужно)
+}).addTo(startEndRouteLayer);
+
+// Создаем маркер с иконкой
+var endMarker = L.marker(endCoordination, {
+    icon: customIcon,
+    title: '№ маршрута',
+    // Дополнительные параметры тултипа (если нужно)
+}).addTo(startEndRouteLayer);
+
+// Добавляем слой с маркерами на карту
+startEndRouteLayer.addTo(map);
+
+// Вычисляем границы карты
+var bounds = L.latLngBounds(${JSON.stringify(coordinates)});
+
+// Добавляем контроль слоев
+L.control.layers(null, {
+    'Маршрут автобуса (направление 1)': busRouteLayer,
+    'Маршрут автобуса (направление 2)': backBusRouteLayer,
+    'Остановки автобуса (направление 1)': busStopLayer,
+    'Остановки автобуса (направление 2)': backBusStopLayer,
+    'Начало и конец маршрута': startEndRouteLayer,
+}).addTo(map);
+
+    // const stopIds = [27589,31671,2932,4212,3671,2956,3330,3127,3652,3128,3535,3129,22956,28866,4161,1522,2967,1373,1375,4165,3058,4375,2976,22962,35835,2842,22314,31004,3910,2077,1655,4168,4169,1334,23716,24311,35082]
+
+    // stopIds.forEach((stopId, index) => {
+    //   const stopCoord = coordinates[index];
+    //   if (stopCoord) {
+    //     L.circleMarker([stopCoord.lat, stopCoord.lng], { radius: 8, color: 'red' })
+    //       .addTo(map)
+    //       .bindPopup('Остановка ${stopId}');
+    //   }
+    // });
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
-      attribution: 'Map data © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
   </script>
   </body>
