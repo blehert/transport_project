@@ -44,9 +44,11 @@ const MapPage = () => {
     const [selectedOption, setSelectedOption] = useState('');
     const [tripOptions, setTripOptions] = useState([]);
     const [selectedTripOption, setSelectedTripOption] = useState('');
-    const [coordinates, setCoordinates] = useState([])
-    const [backCoordinates, setBackCoordinates] = useState([])
+    const [coordinates, setCoordinates] = useState([]);
+    const [backCoordinates, setBackCoordinates] = useState([]);
     const iframeRef = useRef(null);
+    const [stopsDots, setStopsDots] = useState([]);
+    // const [backStops, setBackStops] = useState([]);
 
     const fetchRouteData = useCallback(async () => {
         try {
@@ -96,24 +98,23 @@ const MapPage = () => {
             ]);
             const res = await axios.post(ROUTE_URL, results);
             console.log(res)
-            const dots = res.data[0].data[0].path
+            const dots = res.data.data[0].data[0].path
+            console.log(dots)
             dots.forEach(function (obj) {
                 obj.lng = obj.lon;
                 delete obj.lon;
             });
             setCoordinates(dots);
-            const backDots = res.data[1].data[0].path
+            const backDots = res.data.data[1].data[0].path
             backDots.forEach(function (obj) {
                 obj.lng = obj.lon;
                 delete obj.lon;
             });
             setBackCoordinates(backDots);
-
-
-            // const newHtml = res.data
-            // setIframeHtml(newHtml);
-            // console.log(newHtml)
-            // return newHtml
+            const stopsDots = res.data.stopsDots
+            console.log(stopsDots)
+            setStopsDots(stopsDots)
+            // const backStops = res.data.data2[1]
         } catch (error) {
             console.error(error);
         }
@@ -165,127 +166,98 @@ const MapPage = () => {
         ).map(tripNumber => ({ value: tripNumber, label: tripNumber }));
     };
 
-
-    // шаблон для карты
-    let config = {
-        minZoom: 7,
-        maxZoom: 18,
-    };
-    const zoom = 13
-    let index, stopId;
-
-
-        const str = `<!DOCTYPE html>
-  <html lang="en">
-  <head>
+    const str = `<!DOCTYPE html>
+<html lang="en">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Leaflet Map</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <style>
-      #map {
+    #map {
         height: 630px;
-      }
-      .leaflet-container { font-size: 1rem; }
-      .leaflet-control-attribution{display: none;}
-      .leaflet-tooltip-pane .leaflet-tooltip:last-child { opacity: 0; }
+    }
+    .leaflet-container { font-size: 1rem; }
+    .leaflet-control-attribution{display: none;}
+    .leaflet-tooltip-pane .leaflet-tooltip:last-child { opacity: 0; }
     </style>
-  </head>
-  <body>
+</head>
+<body>
     <div id="map"></div>
 
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script>
-    // создание карты
-    const map = L.map('map')
-    //   прямые координаты
-      const coordinates = ${JSON.stringify(coordinates)};
-       L.polyline(coordinates, { color: 'blue' }).addTo(map);
-    //   обратные координаты
-      const backCoordinates = ${JSON.stringify(backCoordinates)};
-      L.polyline(backCoordinates, { color: 'green' }).addTo(map);
-    // создание карты
-     map.setView(coordinates[0], 13);
 
-// Создаем слои для маршрута, остановок и начала/конца маршрута
-var busRouteLayer = L.layerGroup().addTo(map);
-var backBusRouteLayer = L.layerGroup().addTo(map);
-var busStopLayer = L.layerGroup().addTo(map);
-var backBusStopLayer = L.layerGroup().addTo(map);
-var startEndRouteLayer = L.layerGroup().addTo(map);
+// Создание карты
+const map = L.map('map')
 
-// Добавляем полилинию маршрута
-var polyline = L.polyline(coordinates, { color: 'green' }).addTo(busRouteLayer);
-// центрируем карту относительно polyline
-map.fitBounds(polyline.getBounds());
+// Создание слоев для маршрута, остановок и начала/конца маршрута
+const busRouteLayer = L.layerGroup().addTo(map);
+const backBusRouteLayer = L.layerGroup().addTo(map);
+const startEndRouteLayer = L.layerGroup().addTo(map);
+const busStopsRouteLayer = L.layerGroup().addTo(map);
+// const backBusStopsRouteLayer = L.layerGroup().addTo(map);
 
-// Если есть обратный маршрут и остановки, то добавляем их
-if (${JSON.stringify(backCoordinates)}) {
-    var busBackRouteLayer = L.layerGroup().addTo(map);
-    var busBackStopLayer = L.layerGroup().addTo(map);
 
-    L.polyline(${JSON.stringify(backCoordinates)}, { color: 'blue' }).addTo(busBackRouteLayer);
+// Получение координат маршрута и убедитесь, что они корректны
+let coordinates = ${JSON.stringify(coordinates)};
+let backCoordinates = ${JSON.stringify(backCoordinates)};
+let stopsDots = ${JSON.stringify(stopsDots)}
 
-}
+// Создание полилинии маршрута и добавление на карту
+const polyline = L.polyline(coordinates, { color: 'blue' }).addTo(busRouteLayer);
+const backPolyline = L.polyline(backCoordinates, { color: 'green' }).addTo(backBusRouteLayer);
 
-// Создаем маркеры для начала и конца маршрута
-var startCoordination = coordinates[0];
-var endCoordination = coordinates[coordinates.length - 1];
+// Вычисление границ карты на основе координат маршрута
+const bounds = L.latLngBounds(coordinates);
 
-// Создаем иконку маркера (здесь вы можете заменить "icon-url" на URL вашей иконки)
-var customIcon = L.icon({
-    iconUrl: 'marker.png', // Путь к изображению вашей иконки
-    iconSize: [32, 32],     // Размер иконки (ширина, высота)
-    iconAnchor: [15, 30],   // Точка привязки иконки (центр нижней части)
-    popupAnchor: [0, -30]   // Позиция всплывающей подсказки (над иконкой)
+// Создание маркеров начала и конца маршрута
+const startCoordination = coordinates[0];
+const endCoordination = coordinates[coordinates.length - 1];
+
+const customIcon = L.icon({
+    iconUrl: 'marker.png',  // Путь к иконке
+    iconSize: [32, 32],
+    iconAnchor: [15, 30],
+    popupAnchor: [0, -30]
 });
 
-// Создаем маркер с иконкой
-var startMarker = L.marker(startCoordination, {
+const startMarker = L.marker(startCoordination, {
     icon: customIcon,
-    title: '№ маршрута',
-    // Дополнительные параметры тултипа (если нужно)
+    title: 'Начало маршрута'
 }).addTo(startEndRouteLayer);
 
-// Создаем маркер с иконкой
-var endMarker = L.marker(endCoordination, {
+const endMarker = L.marker(endCoordination, {
     icon: customIcon,
-    title: '№ маршрута',
-    // Дополнительные параметры тултипа (если нужно)
+    title: 'Конец маршрута'
 }).addTo(startEndRouteLayer);
 
-// Добавляем слой с маркерами на карту
-startEndRouteLayer.addTo(map);
+// Добавление остановок на карту
+for (const stop of stopsDots) {
+    const [lat, lng, popupText] = stop;
+    const marker = L.marker([lat, lng]).bindPopup(popupText);
+    busStopsRouteLayer.addLayer(marker);
+}
 
-// Вычисляем границы карты
-var bounds = L.latLngBounds(${JSON.stringify(coordinates)});
+// Установка границ карты
+map.fitBounds(bounds);
 
-// Добавляем контроль слоев
-L.control.layers(null, {
-    'Маршрут автобуса (направление 1)': busRouteLayer,
-    'Маршрут автобуса (направление 2)': backBusRouteLayer,
-    'Остановки автобуса (направление 1)': busStopLayer,
-    'Остановки автобуса (направление 2)': backBusStopLayer,
-    'Начало и конец маршрута': startEndRouteLayer,
+// Добавление плитки OpenStreetMap
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
 }).addTo(map);
 
-    // const stopIds = [27589,31671,2932,4212,3671,2956,3330,3127,3652,3128,3535,3129,22956,28866,4161,1522,2967,1373,1375,4165,3058,4375,2976,22962,35835,2842,22314,31004,3910,2077,1655,4168,4169,1334,23716,24311,35082]
-
-    // stopIds.forEach((stopId, index) => {
-    //   const stopCoord = coordinates[index];
-    //   if (stopCoord) {
-    //     L.circleMarker([stopCoord.lat, stopCoord.lng], { radius: 8, color: 'red' })
-    //       .addTo(map)
-    //       .bindPopup('Остановка ${stopId}');
-    //   }
-    // });
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-    }).addTo(map);
-  </script>
-  </body>
-  </html>`
+// Добавление контроля слоев
+L.control.layers(null, {
+    'Маршрут автобуса': busRouteLayer,
+    'Обратный маршрут автобуса': backBusRouteLayer,
+    'Начало и конец маршрута': startEndRouteLayer,
+    'Остановки автобуса': busStopsRouteLayer,
+    // 'Обратный остановки автобуса': backBusStopsRouteLayer,
+}).addTo(map);
+</script >
+</body >
+  </html > `
 
 
     return (
